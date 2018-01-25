@@ -1,0 +1,63 @@
+###########################################################################
+# C++ Compiler command and flags
+###########################################################################
+CXX = g++
+
+#CXXFLAGS = -g -pipe -pedantic-errors -Wparentheses -Wreturn-type -Wcast-qual -Wall -Wpointer-arith -Wwrite-strings -Wconversion -Wno-unknown-pragmas -Wno-long-long   -DDIP_BUILD -Wno-unknown-pragmas -Wno-write-strings -Wno-sign-compare -Wno-cast-qual -std=c++0x
+
+CXXFLAGS = -O3 -pipe -DNDEBUG -pedantic-errors -Wparentheses -Wreturn-type -Wcast-qual -Wall -Wpointer-arith -Wwrite-strings -Wconversion -Wno-unknown-pragmas -Wno-long-long   -DDIP_BUILD -fopenmp -Wno-unknown-pragmas -Wno-write-strings -Wno-sign-compare -Wno-cast-qual -std=c++0x
+
+CXXLINKFLAGS =  -Wl,--rpath -Wl,/LOG_DATA/Cbc-2.6.2/bin
+#CXXLINKFLAGS =  -Wl,--rpath -Wl,/LOG_DATA/Cbc-2.9.8/bin
+
+###########################################################################
+# directories for finding COIN packages
+###########################################################################
+COININCDIR = /LOG_DATA/Cbc-2.6.2/include/coin
+COINLIBDIR = /LOG_DATA/Cbc-2.6.2/lib/coin
+
+#COININCDIR = /LOG_DATA/Cbc-2.9.8/include/coin
+#COINLIBDIR = /LOG_DATA/Cbc-2.9.8/lib
+
+###########################################################################
+# The following is necessary under cygwin, if native compilers are used
+###########################################################################
+CYGPATH_W = echo
+
+###########################################################################
+# define libs
+###########################################################################
+#Needed to add this too.
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/LOG_DATA/Cbc-2.9.8/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/LOG_DATA/Cbc-2.6.2/lib/coin
+
+LIBS += -L$(COINLIBDIR)
+LIBS += -lCbcSolver -lCbc -lCoinUtils -lm -lOsi -lOsiClp -lClp -lCgl -lCoinUtils -lz
+
+###########################################################################
+# define CFLAGS
+###########################################################################
+CFLAGS += -I`$(CYGPATH_W) $(COININCDIR)`
+
+###########################################################################
+# default targets
+###########################################################################
+
+all: $(EXE)
+
+.SUFFIXES: .cpp .c .o .obj
+
+$(EXE): $(OBJS) $(DEPS)
+	bla=;\
+	for file in $(OBJS); do bla="$$bla `$(CYGPATH_W) $$file`"; done; \
+	$(CXX) $(CXXLINKFLAGS) $(CXXFLAGS) -o $@ $$bla $(LIBS) $(ADDLIBS)
+
+clean:
+	rm -rf $(EXE) $(OBJS)
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) $(CFLAGS) -c -o $@ `test -f '$<' || echo '$(SRCDIR)/'`$<
+
+
+.cpp.obj:
+	$(CXX) $(CXXFLAGS) $(CFLAGS) -c -o $@ `if test -f '$<'; then $(CYGPATH_W) '$<'; else $(CYGPATH_W) '$(SRCDIR)/$<'; fi`
