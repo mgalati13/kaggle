@@ -2,7 +2,6 @@
 %let giftWishListLen  = 1000;
 
 %let path = \\ordsrv3\ormp\sas\SantaGiftMatching;
-/*%let path = C:\SantaGiftMatching;*/
 libname santa "&path";
 
 data santa.child_wishlist;
@@ -15,26 +14,6 @@ data santa.gift_goodkids;
    infile "&path.\gift_goodkids.csv" delimiter = ',' MISSOVER DSD lrecl=32767;
    input giftId child0-child%eval(&giftWishListLen-1);
    node = 'g'||put(giftId,z3.);
-run;
-
-data santa.sample_submission_random;
-   infile "&path.\sample_submission_random.csv" delimiter = ',' MISSOVER DSD lrecl=32767 firstobs=2;
-   input childId giftId;
-run;
-data santa.sample_submission_random_arcs(keep=from to);
-   set santa.sample_submission_random;
-   from = 'c'||put(childId,z6.);
-   to   = 'g'||put(giftId,z3.);
-run;
-
-data santa.sub;
-   infile "&path.\sub.csv" delimiter = ',' MISSOVER DSD lrecl=32767 firstobs=2;
-   input childId giftId;
-run;
-data santa.sub_arcs(keep=from to);
-   set santa.sub;
-   from = 'c'||put(childId,z6.);
-   to   = 'g'||put(giftId,z3.);
 run;
 
 data santa.arcs1(keep=from to weight);
